@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved products{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Saved products</h2>
+    <div class="row">
+        {% for item in saved_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    {% if item.product.images.first %}
+                        <img src="{{ item.product.images.first.photo.url }}" class="card-img-top" alt="{{ item.product.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.product.title }}</h5>
+                        <p class="card-text">${{ item.product.final_price|floatformat:2 }}</p>
+                        <a href="{% url 'product_detail' id=item.product.id %}" class="btn btn-primary btn-sm">Ko‘rish</a>
+                        <a href="{% url 'saved' item.product.id %}" class="btn btn-outline-danger btn-sm">Olib tashlash</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12"><p>Hozircha saved mahsulotlar yo‘q.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

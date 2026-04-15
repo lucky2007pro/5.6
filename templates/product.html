@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {{ product.title }}
+{% endblock %}
+
+{% block content %}
+    <!-- Breadcrumb Start -->
+    <div class="breadcrumb-area mt-30">
+        <div class="container">
+            <div class="breadcrumb">
+                <ul class="d-flex align-items-center">
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li class="active"><a href="product.html">{{ product.title }}</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Container End -->
+    </div>
+    <!-- Breadcrumb End -->
+    <!-- Product Thumbnail Start -->
+    <div class="main-product-thumbnail ptb-100 ptb-sm-60">
+        <div class="container">
+            <div class="thumb-bg">
+                <div class="row">
+                    <!-- Main Thumbnail Image Start -->
+                    <div class="col-lg-5 mb-all-40">
+                        <!-- Thumbnail Large Image start -->
+                        <div class="tab-content">
+                            {% for image in product.images.all %}
+                                <div id="thumb{{ forloop.counter }}" class="tab-pane fade {% if forloop.first %}show active{% endif %}">
+                                    <a data-fancybox="images" href="{{ image.photo.url }}"><img src="{{ image.photo.url }}" alt="product-view"></a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <!-- Thumbnail Large Image End -->
+                        <!-- Thumbnail Image End -->
+                        <div class="product-thumbnail mt-15">
+                            <div class="thumb-menu owl-carousel nav tabs-area" role="tablist">
+                                {% for image in product.images.all %}
+                                    <a class="{% if forloop.first %}active{% endif %}" data-toggle="tab" href="#thumb{{ forloop.counter }}"><img src="{{ image.photo.url }}" alt="product-thumbnail"></a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- Thumbnail image end -->
+                    </div>
+                    <!-- Main Thumbnail Image End -->
+                    <!-- Thumbnail Description Start -->
+                    <div class="col-lg-7">
+                        <div class="thubnail-desc fix">
+                            <h3 class="product-header">{{ product.title }}</h3>
+                            <div class="pro-price mtb-30">
+                                <p class="d-flex align-items-center">
+                                    <span class="price">${{ product.final_price|floatformat:2 }}</span>
+                                    {% if product.discount %}
+                                        <span class="ml-15 text-muted"><del>${{ product.price }}</del></span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <p class="mb-20 pro-desc-details">{{ product.desc }}</p>
+                            <div class="box-quantity d-flex hot-product2">
+                                <form action="#">
+                                    <label for="product-quantity" class="sr-only">Quantity</label>
+                                    <input id="product-quantity" class="quantity mr-15" type="number" min="1" value="1">
+                                </form>
+                                <div class="pro-actions">
+                                    <div class="actions-primary">
+                                        <a href="cart.html" title="" data-original-title="Add to Cart"> + Add To Cart</a>
+                                    </div>
+                                    <div class="actions-secondary">
+                                        <a href="compare.html" title="" data-original-title="Compare"><i class="lnr lnr-sync"></i> <span>Add To Compare</span></a>
+                                        <a href="{% url 'saved' product.id %}" title="" data-original-title="WishList"><i class="lnr lnr-heart"></i> <span>{% if is_saved %}Saved{% else %}Add to WishList{% endif %} ({{ saved_count }})</span></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-20">
+                                <a class="btn btn-sm btn-outline-danger mr-10" href="{% url 'like' product.id %}">
+                                    <i class="lnr lnr-heart"></i>
+                                    {% if is_liked %}Unlike{% else %}Like{% endif %} ({{ like_count }})
+                                </a>
+                                <a class="btn btn-sm btn-outline-primary" href="{% url 'saved' product.id %}">
+                                    <i class="lnr lnr-bookmark"></i>
+                                    {% if is_saved %}Remove from Saved{% else %}Save product{% endif %}
+                                </a>
+                            </div>
+                            <div class="pro-ref mt-20">
+                                <p><span class="in-stock"><i class="ion-checkmark-round"></i> IN STOCK</span></p>
+                            </div>
+
+                            <div class="product-review mt-40">
+                                <h4>Commentlar ({{ comment_count }})</h4>
+                                {% if user.is_authenticated %}
+                                    <form method="post" action="{% url 'comment_create' product.id %}" class="mt-3">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="id_text">Izoh</label>
+                                            {{ comment_form.text }}
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_rate">Rate</label>
+                                            {{ comment_form.rate }}
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            {% if user_comment %}Commentni yangilash{% else %}Izoh qoldirish{% endif %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <p><a href="{% url 'login' %}">Comment yozish</a> uchun tizimga kiring.</p>
+                                {% endif %}
+
+                                <div class="comment-list mt-4">
+                                    {% for comment in comments %}
+                                        <div class="border rounded p-3 mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <strong>{{ comment.user.username }}</strong>
+                                                <span>{{ comment.rate }}/5</span>
+                                            </div>
+                                            <p class="mb-2">{{ comment.text }}</p>
+                                            {% if user.is_authenticated and comment.user_id == user.id %}
+                                                <form method="post" action="{% url 'update_comment' comment.id %}" class="mb-2">
+                                                    {% csrf_token %}
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="comment-text-{{ comment.id }}">Comment text</label>
+                                                        <textarea id="comment-text-{{ comment.id }}" name="text" rows="3" class="form-control">{{ comment.text }}</textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="comment-rate-{{ comment.id }}">Comment rate</label>
+                                                        <select id="comment-rate-{{ comment.id }}" name="rate" class="form-control">
+                                                            {% for value in '12345' %}
+                                                                <option value="{{ value }}" {% if comment.rate|stringformat:'s' == value %}selected{% endif %}>{{ value }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-sm btn-success">Saqlash</button>
+                                                </form>
+                                                <form method="post" action="{% url 'delete_comment' comment.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-danger">O'chirish</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    {% empty %}
+                                        <p>Hozircha comment yo'q.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Thumbnail Description End -->
+                </div>
+                <!-- Row End -->
+            </div>
+        </div>
+        <!-- Container End -->
+    </div>
+    <!-- Product Thumbnail End -->
+{% endblock %}

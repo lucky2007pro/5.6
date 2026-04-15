@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2>{{ profile_section_title|default:"Profile" }}</h2>
+            <p class="mb-0">{{ user.username }}</p>
+        </div>
+    </div>
+
+    {% if profile_mode == 'comments' %}
+        <div class="row">
+            <div class="col-12">
+                {% for comment in profile_comments %}
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>{{ comment.product.title }}</strong>
+                            <span>{{ comment.rate }}/5</span>
+                        </div>
+                        <p class="mb-2">{{ comment.text }}</p>
+                        <a href="{% url 'product_detail' id=comment.product.id %}" class="btn btn-sm btn-primary">Mahsulotga o'tish</a>
+                    </div>
+                {% empty %}
+                    <p>Hozircha comment yozmagansiz.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="hot-deal-active owl-carousel">
+            {% with profile_items|default_if_none:user.products.all as items %}
+                {% for item in items %}
+                    {% if item.product %}
+                        {% with item.product as product %}
+                            <div class="single-product">
+                                <div class="pro-img">
+                                    <a href="{% url 'product_detail' id=product.id %}">
+                                        {% if product.images.first %}
+                                            <img class="primary-img" src="{{ product.images.first.photo.url }}" alt="single-product">
+                                        {% endif %}
+                                        {% if product.images.last %}
+                                            <img class="secondary-img" src="{{ product.images.last.photo.url }}" alt="single-product">
+                                        {% endif %}
+                                    </a>
+                                    <div class="countdown" data-countdown="2020/03/01"></div>
+                                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="Quick View"><i class="lnr lnr-magnifier"></i></a>
+                                </div>
+                                <div class="pro-content">
+                                    <div class="pro-info">
+                                        <h4><a href="{% url 'product_detail' id=product.id %}">{{ product.title }}</a></h4>
+                                        <p><span class="price">${{ product.final_price|floatformat:2 }}</span></p>
+                                        {% if product.discount %}
+                                            <div class="label-product l_sale">{{ product.discount }}<span class="symbol-percent">%</span></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="pro-actions">
+                                        <div class="actions-primary">
+                                            <a href="{% url 'product_detail' id=product.id %}" title="Add to Cart">View product</a>
+                                        </div>
+                                        <div class="actions-secondary">
+                                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>Compare</span></a>
+                                            <a href="{% url 'saved' product.id %}" title="WishList"><i class="lnr lnr-heart"></i> <span>Saved</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% else %}
+                        {% with item as product %}
+                            <div class="single-product">
+                                <div class="pro-img">
+                                    <a href="{% url 'product_detail' id=product.id %}">
+                                        {% if product.images.first %}
+                                            <img class="primary-img" src="{{ product.images.first.photo.url }}" alt="single-product">
+                                        {% endif %}
+                                        {% if product.images.last %}
+                                            <img class="secondary-img" src="{{ product.images.last.photo.url }}" alt="single-product">
+                                        {% endif %}
+                                    </a>
+                                    <div class="countdown" data-countdown="2020/03/01"></div>
+                                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="Quick View"><i class="lnr lnr-magnifier"></i></a>
+                                </div>
+                                <div class="pro-content">
+                                    <div class="pro-info">
+                                        <h4><a href="{% url 'product_detail' id=product.id %}">{{ product.title }}</a></h4>
+                                        <p><span class="price">${{ product.final_price|floatformat:2 }}</span></p>
+                                        {% if product.discount %}
+                                            <div class="label-product l_sale">{{ product.discount }}<span class="symbol-percent">%</span></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="pro-actions">
+                                        <div class="actions-primary">
+                                            <a href="{% url 'product_detail' id=product.id %}" title="Add to Cart">View product</a>
+                                        </div>
+                                        <div class="actions-secondary">
+                                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>Compare</span></a>
+                                            <a href="{% url 'saved' product.id %}" title="WishList"><i class="lnr lnr-heart"></i> <span>Saved</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endif %}
+                {% empty %}
+                    <p>Hozircha ko'rsatadigan ma'lumot yo'q.</p>
+                {% endfor %}
+            {% endwith %}
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}
